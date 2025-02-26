@@ -2,7 +2,15 @@ import os
 
 import psycopg2
 from dotenv import load_dotenv
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import (
+    Flask,
+    flash,
+    get_flashed_messages,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
 from page_analyzer.repository import UrlsRepository
 from page_analyzer.url_validator import (
@@ -20,8 +28,7 @@ conn = psycopg2.connect(DATABASE_URL)
 
 @app.route("/")
 def index():
-    message = session.get("message")
-    session["message"] = None
+    message = get_flashed_messages()
     return render_template("main.html.j2", message=message), 200
 
 
@@ -38,13 +45,17 @@ def url_new():
     url = request.form.to_dict()["url"]
     url = normalize_url(url)
     if is_valid_url(url) and has_valid_len(url):
-        id = urls.save(url)
-        session["message"] = "Страница успешно добавлена"
+        if urls.find_by_name(url):
+            id = urls.find_by_name(url)["id"]
+            flash("Страница уже существует", "info")
+        else:
+            id = urls.save(url)
+            flash("Страница успешно добавлена", "success")
         return redirect(url_for("show_url", id=id), code=302)
     if not is_valid_url(url):
-        session["message"] = "Некорректный URL"
+        flash("Неккоректный URL", "error")
     else:
-        session["message"] = "Слишком длинный URL"
+        flash("Слишком длинный URL", "error")
     return redirect(url_for("index"))
 
 
@@ -52,6 +63,5 @@ def url_new():
 def show_url(id):
     urls = UrlsRepository(conn)
     url = urls.find_by_id(id)
-    message = session["message"]
-    session["message"] = None
-    return render_template("/urls/show.html.j2", url=url, message=message)
+    messages = get_flashed_messages(with_categories=True)
+    return render_template("/urls/show.html.j2", url=url, messages=messages)

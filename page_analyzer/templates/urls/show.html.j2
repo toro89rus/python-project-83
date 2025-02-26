@@ -1,25 +1,26 @@
-{{% extends 'layout.html' %}}
-{{% block content %}
-    {{% if messages %}
-    <div class="alert alert-success" role="alert">Страница успешно добавлена</div>
-    {% endif %}}
+{% extends 'layout.html' %}
+{% block content %}
+    {% if message %}
+<div class="alert alert-success" role="alert">Страница успешно добавлена</div>
+    {% endif %}
 <main class="flex-grow-1">
     <div class="container-lg mt-3">
         <h1>Сайт: {{url.name}}</h1>
         <div class="table-responsive">
-            <table class="table table-bordered table-hover text-nowrap" data-test="url">
+            <table class="table table-bordered table-hover text-nowrap"
+                data-test="url">
                 <tbody>
                     <tr>
                         <td>ID</td>
-                        <id>{{url.id}}</id>
+                        <td>{{url.id}}</td>
                     </tr>
                     <tr>
                         <td>Имя</td>
-                        <id>{{url.name}}</id>
+                        <td>{{url.name}}</td>
                     </tr>
                     <tr>
                         <td>Дата создания</td>
-                        <id>{{url.created_at}}</id>
+                        <td>{{url.created_at}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -27,4 +28,4 @@
         <h2 class="mt-5 mb-3">Проверки</h2>
     </div>
 </main>
-{% endblock %}}
+{% endblock %}

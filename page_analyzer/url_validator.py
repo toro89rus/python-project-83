@@ -15,6 +15,7 @@ def is_valid_url(url):
         return False
     return True
 
+
 def has_valid_len(url):
     return len(url) <= MAX_LENGTH
 

@@ -1,4 +1,5 @@
 import datetime
+
 from psycopg2.extras import DictCursor
 
 

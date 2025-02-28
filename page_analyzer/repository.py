@@ -51,11 +51,11 @@ class ChecksRepository:
     def __init__(self, conn):
         self.conn = conn
 
-    def add_check(self, url_id):
+    def add_check(self, url_id, status_code):
         query = """INSERT INTO url_checks
-        (url_id, created_at) VALUES (%s, %s) RETURNING ID"""
+        (url_id, status_code, created_at) VALUES (%s, %s, %s) RETURNING ID"""
         with self.conn.cursor() as cur:
-            cur.execute(query, (url_id, datetime.datetime.now()))
+            cur.execute(query, (url_id, status_code, datetime.datetime.now()))
             id = cur.fetchone()[0]
         self.conn.commit()
         return id

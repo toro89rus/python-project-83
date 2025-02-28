@@ -1,8 +1,10 @@
 import os
 
 import psycopg2
+import requests
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
+from requests.exceptions import ConnectionError, HTTPError, Timeout
 
 from page_analyzer.repository import ChecksRepository, UrlsRepository
 from page_analyzer.url_validator import normalize_url, validate_url
@@ -65,6 +67,12 @@ def add_check(id):
     urls = UrlsRepository(conn)
     url = urls.find_by_id(id)
     checks = ChecksRepository(conn)
-    checks.add_check(id)
-    url_checks = checks.get_checks(id)
-    return render_template("/urls/show.html.j2", url=url, checks=url_checks)
+    try:
+        r = requests.get(url["name"])
+        r.raise_for_status()
+        checks.add_check(id, r.status_code)
+    except (HTTPError, Timeout, ConnectionError):
+        flash("Произошла ошибка при проверке", "danger")
+    finally:
+        url_checks = checks.get_checks(id)
+        return render_template("/urls/show.html.j2", url=url, checks=url_checks)

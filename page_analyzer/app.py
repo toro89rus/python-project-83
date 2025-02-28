@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
 from requests.exceptions import ConnectionError, HTTPError, Timeout
 
+from page_analyzer.html_parser import get_seo_content
 from page_analyzer.repository import ChecksRepository, UrlsRepository
 from page_analyzer.url_validator import normalize_url, validate_url
 
@@ -70,9 +71,9 @@ def add_check(id):
     try:
         r = requests.get(url["name"])
         r.raise_for_status()
-        checks.add_check(id, r.status_code)
+        seo_content = get_seo_content(r.text)
+        checks.add_check(id, r.status_code, *seo_content)
     except (HTTPError, Timeout, ConnectionError):
         flash("Произошла ошибка при проверке", "danger")
-    finally:
-        url_checks = checks.get_checks(id)
-        return render_template("/urls/show.html.j2", url=url, checks=url_checks)
+    url_checks = checks.get_checks(id)
+    return render_template("/urls/show.html.j2", url=url, checks=url_checks)

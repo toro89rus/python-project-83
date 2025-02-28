@@ -31,7 +31,7 @@ class UrlsRepository:
             return dict(row) if row else {}
 
     def find_by_id(self, id_to_find):
-        query = "SELECT * FROM urls WHERE id = %s"
+        query = "SELECT id, name, DATE(created_at) FROM urls WHERE id = %s"
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
             cur.execute(query, (id_to_find,))
             row = cur.fetchone()
@@ -51,11 +51,22 @@ class ChecksRepository:
     def __init__(self, conn):
         self.conn = conn
 
-    def add_check(self, url_id, status_code):
+    def add_check(self, url_id, status_code, h1, title, description):
         query = """INSERT INTO url_checks
-        (url_id, status_code, created_at) VALUES (%s, %s, %s) RETURNING ID"""
+        (url_id, status_code, h1, title, description, created_at)
+        VALUES (%s, %s, %s,%s, %s, %s) RETURNING ID"""
         with self.conn.cursor() as cur:
-            cur.execute(query, (url_id, status_code, datetime.datetime.now()))
+            cur.execute(
+                query,
+                (
+                    url_id,
+                    status_code,
+                    h1,
+                    title,
+                    description,
+                    datetime.datetime.now(),
+                ),
+            )
             id = cur.fetchone()[0]
         self.conn.commit()
         return id
@@ -74,7 +85,7 @@ class ChecksRepository:
                 ORDER BY created_at DESC;
         """
         with self.conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(query, (url_id, ))
+            cur.execute(query, (url_id,))
             return [dict(row) for row in cur]
 
     def get_last_check(self, url_id):

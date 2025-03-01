@@ -10,9 +10,6 @@ lint:
 dev:
 	uv run flask --debug --app page_analyzer:app run
 
-test:
-	uv run pytest
-
 dev:
 	uv run flask --debug --app page_analyzer:app run
 

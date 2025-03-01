@@ -120,8 +120,9 @@ class ChecksRepository:
 
         with conn.cursor() as cur:
             cur.execute(query, (url_id,))
-            last_check, status_code = cur.fetchall()[0]
+            result = cur.fetchall()
             conn.close()
-            if last_check and status_code:
+            if result:
+                last_check, status_code = result[0]
                 return (last_check, status_code)
             return ("", "")

@@ -1,6 +1,5 @@
 import os
 
-import psycopg2
 import requests
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
@@ -13,8 +12,6 @@ from page_analyzer.url_validator import normalize_url, validate_url
 app = Flask(__name__)
 load_dotenv()
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-DATABASE_URL = os.getenv("DATABASE_URL")
-conn = psycopg2.connect(DATABASE_URL)
 
 
 @app.route("/")
@@ -24,9 +21,9 @@ def index():
 
 @app.route("/urls")
 def index_urls():
-    urls = UrlsRepository(conn)
+    urls = UrlsRepository()
     urls_list = urls.get_all()
-    checks = ChecksRepository(conn)
+    checks = ChecksRepository()
     for url in urls_list:
         url["last_check"] = checks.get_last_check(url["id"])
     return render_template("urls/urls.html.j2", urls=urls_list)
@@ -34,7 +31,7 @@ def index_urls():
 
 @app.post("/urls")
 def url_new():
-    urls = UrlsRepository(conn)
+    urls = UrlsRepository()
     url = request.form.to_dict()["url"]
     normalized_url = normalize_url(url)
     errors = validate_url(normalized_url)
@@ -56,18 +53,18 @@ def url_new():
 
 @app.route("/show/<id>")
 def show_url(id):
-    urls = UrlsRepository(conn)
+    urls = UrlsRepository()
     url = urls.find_by_id(id)
-    checks = ChecksRepository(conn)
+    checks = ChecksRepository()
     url_checks = checks.get_checks(id)
     return render_template("/urls/show.html.j2", url=url, checks=url_checks)
 
 
 @app.post("/urls/<id>/checks")
 def add_check(id):
-    urls = UrlsRepository(conn)
+    urls = UrlsRepository()
     url = urls.find_by_id(id)
-    checks = ChecksRepository(conn)
+    checks = ChecksRepository()
     try:
         r = requests.get(url["name"])
         r.raise_for_status()

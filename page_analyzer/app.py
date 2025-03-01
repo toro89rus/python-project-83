@@ -51,7 +51,7 @@ def url_new():
     return render_template("main.html.j2", url=url), 422
 
 
-@app.route("/show/<id>")
+@app.route("/urls/<id>")
 def show_url(id):
     urls = UrlsRepository()
     url = urls.find_by_id(id)

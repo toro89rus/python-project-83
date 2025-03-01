@@ -70,6 +70,7 @@ def add_check(id):
         r.raise_for_status()
         seo_content = get_seo_content(r.text)
         checks.add_check(id, r.status_code, *seo_content)
+        flash("Страница успешно проверена", "success")
     except (HTTPError, Timeout, ConnectionError):
         flash("Произошла ошибка при проверке", "danger")
     url_checks = checks.get_checks(id)

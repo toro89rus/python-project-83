@@ -8,4 +8,4 @@ def get_seo_content(html):
     content = soup.find("meta", attrs={"name": "description"}).get(
         "content", ""
     )
-    return (title, h1, content)
+    return (h1, title, content)

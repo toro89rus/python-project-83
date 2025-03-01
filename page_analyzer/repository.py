@@ -113,12 +113,15 @@ class ChecksRepository:
 
     def get_last_check(self, url_id):
         conn = get_conn()
-        query = """SELECT DATE(created_at)
+        query = """SELECT DATE(MAX(created_at)), status_code
                 FROM url_checks
                 WHERE url_id = %s
-                ORDER BY created_at DESC;"""
-        with conn.cursor(cursor_factory=DictCursor) as cur:
+                GROUP BY status_code"""
+
+        with conn.cursor() as cur:
             cur.execute(query, (url_id,))
-            last_check = cur.fetchone()
+            last_check, status_code = cur.fetchall()[0]
             conn.close()
-            return last_check[0] if last_check else ""
+            if last_check and status_code:
+                return (last_check, status_code)
+            return ("", "")

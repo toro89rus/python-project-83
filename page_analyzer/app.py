@@ -25,7 +25,7 @@ def index_urls():
     urls_list = urls.get_all()
     checks = ChecksRepository()
     for url in urls_list:
-        url["last_check"] = checks.get_last_check(url["id"])
+        (url["last_check"], url["status"]) = checks.get_last_check(url["id"])
     return render_template("urls/urls.html.j2", urls=urls_list)
 
 

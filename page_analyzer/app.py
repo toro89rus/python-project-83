@@ -45,7 +45,7 @@ def url_new():
             flash("Страница уже существует", "info")
         return redirect(url_for("show_url", id=id), code=302)
     if "Incorrect URL" in errors:
-        flash("Неккоректный URL", "danger")
+        flash("Некоректный URL", "danger")
     else:
         flash("Слишком длинный URL", "danger")
     return render_template("main.html.j2", url=url), 422

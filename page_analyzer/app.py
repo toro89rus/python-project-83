@@ -48,7 +48,7 @@ def url_new():
         flash("Неккоректный URL", "danger")
     else:
         flash("Слишком длинный URL", "danger")
-    return render_template("main.html.j2")
+    return render_template("main.html.j2", url=url), 422
 
 
 @app.route("/show/<id>")

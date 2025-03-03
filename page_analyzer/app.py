@@ -45,7 +45,7 @@ def url_new():
         )
         return render_template("main.html.j2", url=url), 422
     repo = Repository()
-    existing_url = repo.get_url_by_name(normalized_url)
+    existing_url = repo.find_url_by_name(normalized_url)
     if existing_url:
         url_id = existing_url.get("id")
         flash("Страница уже существует", "info")

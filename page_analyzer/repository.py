@@ -38,7 +38,7 @@ class Repository:
 
     @use_connection
     def find_url_by_name(self, cur, name_to_find):
-        """Searches URL in DB by name.
+        """Gets URL from DB by name.
         Returns URL in form of a dict, empty dict if not found"""
         query = "SELECT * FROM urls WHERE name = %s"
         cur.execute(query, (name_to_find,))
@@ -47,7 +47,7 @@ class Repository:
 
     @use_connection
     def find_url_by_id(self, cur, id_to_find):
-        """Searches URL in DB by id.
+        """Gets URL in DB by id.
         Returns URL in form of a dict, empty dict if not found"""
         query = "SELECT id, name, DATE(created_at) FROM urls WHERE id = %s"
         cur.execute(query, (id_to_find,))

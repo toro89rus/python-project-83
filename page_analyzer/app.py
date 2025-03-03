@@ -23,31 +23,36 @@ def index_urls():
     repo = Repository()
     urls_list = repo.get_all_urls()
     for url in urls_list:
-        url["last_check"], url["status"] = (
-            repo.get_last_check_date_and_status(url["id"])
+        url["last_check"], url["status"] = repo.get_last_check_date_and_status(
+            url["id"]
         )
     return render_template("urls/urls.html.j2", urls=urls_list)
 
 
 @app.post("/urls")
 def url_new():
-    url = request.form.to_dict()["url"]
+    url = request.form.to_dict().get("url")
     normalized_url = normalize_url(url)
     errors = validate_url(normalized_url)
-    if not errors:
-        repo = Repository()
-        id = repo.find_url_by_name(normalized_url).get("id")
-        if not id:
-            id = repo.save_url(normalized_url)
-            flash("Страница успешно добавлена", "success")
-        else:
-            flash("Страница уже существует", "info")
-        return redirect(url_for("show_url", id=id), code=302)
-    if "Incorrect URL" in errors:
-        flash("Некорректный URL", "danger")
+    if errors:
+        flash(
+            (
+                "Некорректный URL"
+                if "Incorrect URL" in errors
+                else "Слишком длинный URL"
+            ),
+            "danger",
+        )
+        return render_template("main.html.j2", url=url), 422
+    repo = Repository()
+    existing_url = repo.get_url_by_name(normalized_url)
+    if existing_url:
+        url_id = existing_url.get("id")
+        flash("Страница уже существует", "info")
     else:
-        flash("Слишком длинный URL", "danger")
-    return render_template("main.html.j2", url=url), 422
+        url_id = repo.save_url(normalized_url)
+        flash("Страница успешно добавлена", "success")
+    return redirect(url_for("show_url", id=url_id), code=302)
 
 
 @app.route("/urls/<id>")

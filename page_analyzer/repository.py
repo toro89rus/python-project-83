@@ -36,23 +36,25 @@ class Repository:
         id = cur.fetchone()[0]
         return id
 
-    @use_connection
-    def find_url_by_name(self, cur, name_to_find):
+    def get_url_by_name(self, name_to_find):
         """Gets URL from DB by name.
         Returns URL in form of a dict, empty dict if not found"""
-        query = "SELECT * FROM urls WHERE name = %s"
-        cur.execute(query, (name_to_find,))
-        url = cur.fetchone()
-        return dict(url) if url else {}
+        return self._get_url_by_fieldname("name", name_to_find)
 
-    @use_connection
-    def find_url_by_id(self, cur, id_to_find):
+    def get_url_by_id(self, id_to_find):
         """Gets URL in DB by id.
         Returns URL in form of a dict, empty dict if not found"""
-        query = "SELECT id, name, DATE(created_at) FROM urls WHERE id = %s"
-        cur.execute(query, (id_to_find,))
-        row = cur.fetchone()
-        return dict(row) if row else {}
+        return self._get_url_by_fieldname("id", id_to_find)
+
+    @use_connection
+    def _get_url_by_fieldname(self, cur, field_name, value):
+        query = f"""
+            SELECT id, name, DATE(created_at)
+            FROM urls
+            WHERE {field_name} = %s"""
+        cur.execute(query, (value,))
+        url = cur.fetchone()
+        return dict(url) if url else {}
 
     @use_connection
     def get_urls_checks_by_id(self, cur, url_id):

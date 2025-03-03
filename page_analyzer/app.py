@@ -45,7 +45,7 @@ def url_new():
         )
         return render_template("main.html.j2", url=url), 422
     repo = Repository()
-    existing_url = repo.find_url_by_name(normalized_url)
+    existing_url = repo.get_url_by_name(normalized_url)
     if existing_url:
         url_id = existing_url.get("id")
         flash("Страница уже существует", "info")
@@ -58,7 +58,7 @@ def url_new():
 @app.route("/urls/<id>")
 def show_url(id):
     repo = Repository()
-    url = repo.find_url_by_id(id)
+    url = repo.get_url_by_id(id)
     url_checks = repo.get_urls_checks_by_id(id)
     return render_template("/urls/show.html.j2", url=url, checks=url_checks)
 
@@ -66,7 +66,7 @@ def show_url(id):
 @app.post("/urls/<id>/checks")
 def add_check(id):
     repo = Repository()
-    url = repo.find_url_by_id(id)
+    url = repo.get_url_by_id(id)
     try:
         r = requests.get(url["name"])
         r.raise_for_status()

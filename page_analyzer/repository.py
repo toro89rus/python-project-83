@@ -1,98 +1,61 @@
 import datetime
-import os
 
 import psycopg2
-from dotenv import load_dotenv
 from psycopg2.extras import DictCursor
 
-load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
-conn = psycopg2.connect(DATABASE_URL)
+from page_analyzer.config import DATABASE_URL
 
 
-def get_conn():
-    return psycopg2.connect(DATABASE_URL)
+def use_connection(method):
+    """Automatically manages connection to DB and cursor"""
+    conn = psycopg2.connect(DATABASE_URL)
+
+    def wrapper(self, *args, **kwargs):
+        with conn, conn.cursor(cursor_factory=DictCursor) as cur:
+            return method(self, cur, *args, **kwargs)
+
+    return wrapper
 
 
-class UrlsRepository:
+class Repository:
 
-    def save(self, url):
-        conn = get_conn()
+    @use_connection
+    def get_all_urls(self, cur):
+        query = "SELECT * FROM urls ORDER BY id DESC"
+        cur.execute(query)
+        return [dict(url) for url in cur]
+
+    @use_connection
+    def save_url(self, cur, url):
+        """Saves new url to DB, returns ID"""
         query = (
             "INSERT INTO urls (name, created_at) VALUES (%s, %s) RETURNING ID"
         )
-        with conn.cursor() as cur:
-            cur.execute(query, (url, datetime.datetime.now()))
-            id = cur.fetchone()[0]
-        conn.commit()
-        conn.close()
+        values = (url, datetime.datetime.now())
+        cur.execute(query, values)
+        id = cur.fetchone()
         return id
 
-    def get_all(self):
-        conn = get_conn()
-        query = "SELECT * FROM urls ORDER BY id DESC"
-        with conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(query)
-            urls = [dict(row) for row in cur]
-            conn.close()
-            return urls
-
-    def find_by_name(self, name_to_find):
-        conn = get_conn()
+    @use_connection
+    def find_url_by_name(self, cur, name_to_find):
+        """Searches URL in DB by name.
+        Returns URL in form of a dict, empty dict if not found"""
         query = "SELECT * FROM urls WHERE name = %s"
-        with conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(query, (name_to_find,))
-            row = cur.fetchone()
-            conn.close()
-            return dict(row) if row else {}
+        cur.execute(query, (name_to_find,))
+        url = cur.fetchone()
+        return dict(url) if url else {}
 
-    def find_by_id(self, id_to_find):
-        conn = get_conn()
+    @use_connection
+    def find_url_by_id(self, cur, id_to_find):
+        """Searches URL in DB by id.
+        Returns URL in form of a dict, empty dict if not found"""
         query = "SELECT id, name, DATE(created_at) FROM urls WHERE id = %s"
-        with conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(query, (id_to_find,))
-            row = cur.fetchone()
-            conn.close()
-            return dict(row) if row else {}
+        cur.execute(query, (id_to_find,))
+        row = cur.fetchone()
+        return dict(row) if row else {}
 
-    def find_by_fieldname(self, fieldname, value):
-        conn = get_conn()
-        if fieldname not in ("name", "created_at", "id"):
-            raise ValueError(f"Invalid fieldname:{fieldname}")
-        query = f"SELECT * FROM urls WHERE {fieldname} = %s"
-        with conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(query, (value,))
-            row = cur.fetchone()
-            conn.close()
-            return dict(row) if row else None
-
-
-class ChecksRepository:
-
-    def add_check(self, url_id, status_code, h1, title, description):
-        conn = get_conn()
-        query = """INSERT INTO url_checks
-        (url_id, status_code, h1, title, description, created_at)
-        VALUES (%s, %s, %s,%s, %s, %s) RETURNING ID"""
-        with conn.cursor() as cur:
-            cur.execute(
-                query,
-                (
-                    url_id,
-                    status_code,
-                    h1,
-                    title,
-                    description,
-                    datetime.datetime.now(),
-                ),
-            )
-            id = cur.fetchone()[0]
-        conn.commit()
-        conn.close()
-        return id
-
-    def get_checks(self, url_id):
-        conn = get_conn()
+    @use_connection
+    def get_urls_checks_by_id(self, cur, url_id):
         query = """SELECT
                 id,
                 url_id,
@@ -105,24 +68,36 @@ class ChecksRepository:
                 WHERE url_id = %s
                 ORDER BY created_at DESC;
         """
-        with conn.cursor(cursor_factory=DictCursor) as cur:
-            cur.execute(query, (url_id,))
-            checks = [dict(row) for row in cur]
-            conn.close()
-            return checks
+        cur.execute(query, (url_id,))
+        return [dict(check) for check in cur]
 
-    def get_last_check(self, url_id):
-        conn = get_conn()
+    @use_connection
+    def add_check(self, cur, **check):
+        query = """INSERT INTO url_checks
+        (url_id, status_code, h1, title, description, created_at)
+        VALUES (%s, %s, %s,%s, %s, %s) RETURNING ID"""
+        values = (
+            check["url_id"],
+            check["status_code"],
+            check["h1"],
+            check["title"],
+            check["content"],
+            datetime.datetime.now(),
+        )
+        cur.execute(query, values)
+        id = cur.fetchone()
+        return id
+
+    @use_connection
+    def get_last_check_date_and_status(self, cur, url_id):
         query = """SELECT DATE(MAX(created_at)), status_code
                 FROM url_checks
                 WHERE url_id = %s
                 GROUP BY status_code"""
 
-        with conn.cursor() as cur:
-            cur.execute(query, (url_id,))
-            result = cur.fetchall()
-            conn.close()
-            if result:
-                last_check, status_code = result[0]
-                return (last_check, status_code)
-            return ("", "")
+        cur.execute(query, (url_id,))
+        result = cur.fetchone()
+        if result:
+            last_check_date, status_code = result
+            return last_check_date, status_code
+        return "", ""

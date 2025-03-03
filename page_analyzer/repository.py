@@ -33,7 +33,7 @@ class Repository:
         )
         values = (url, datetime.datetime.now())
         cur.execute(query, values)
-        id = cur.fetchone()
+        id = cur.fetchone()[0]
         return id
 
     @use_connection
@@ -96,8 +96,8 @@ class Repository:
                 GROUP BY status_code"""
 
         cur.execute(query, (url_id,))
-        result = cur.fetchone()
-        if result:
-            last_check_date, status_code = result
-            return last_check_date, status_code
+        last_check = cur.fetchone()
+        if last_check:
+            last_check_date, last_check_status_code = last_check
+            return last_check_date, last_check_status_code
         return "", ""

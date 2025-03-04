@@ -35,14 +35,12 @@ def url_new():
     normalized_url = normalize_url(url)
     errors = validate_url(normalized_url)
     if errors:
-        flash(
-            (
-                "Некорректный URL"
-                if "Incorrect URL" in errors
-                else "Слишком длинный URL"
-            ),
-            "danger",
+        flash_message = (
+            "Некорректный URL"
+            if errors.get("Incorrect URL")
+            else "Слишком длинный URL"
         )
+        flash(flash_message, "danger")
         return render_template("main.html.j2", url=url), 422
     repo = Repository()
     existing_url = repo.get_url_by_name(normalized_url)

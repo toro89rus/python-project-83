@@ -21,13 +21,16 @@ class Repository:
 
     @use_connection
     def get_all_urls(self, cur):
+        """Gets all urls from DB.
+        Returns a list of url dicts"""
         query = "SELECT * FROM urls ORDER BY id DESC"
         cur.execute(query)
         return [dict(url) for url in cur]
 
     @use_connection
     def save_url(self, cur, url):
-        """Saves new url to DB, returns ID"""
+        """Saves new url to DB.
+        Returns ID"""
         query = (
             "INSERT INTO urls (name, created_at) VALUES (%s, %s) RETURNING ID"
         )
@@ -36,18 +39,10 @@ class Repository:
         id = cur.fetchone()[0]
         return id
 
-    def get_url_by_name(self, name_to_find):
-        """Gets URL from DB by name.
-        Returns URL in form of a dict, empty dict if not found"""
-        return self._get_url_by_fieldname("name", name_to_find)
-
-    def get_url_by_id(self, id_to_find):
-        """Gets URL in DB by id.
-        Returns URL in form of a dict, empty dict if not found"""
-        return self._get_url_by_fieldname("id", id_to_find)
-
     @use_connection
     def _get_url_by_fieldname(self, cur, field_name, value):
+        """Internal method. Gets URL from DB by specified fieldname and value.
+        Returns URL dict, empty dict if not found"""
         query = f"""
             SELECT id, name, DATE(created_at)
             FROM urls
@@ -56,8 +51,20 @@ class Repository:
         url = cur.fetchone()
         return dict(url) if url else {}
 
+    def get_url_by_name(self, name_to_find):
+        """Gets URL from DB by name.
+        Returns URL dict, empty dict if name not found"""
+        return self._get_url_by_fieldname("name", name_to_find)
+
+    def get_url_by_id(self, id_to_find):
+        """Gets URL from DB by id.
+        Returns URL dict, empty dict if id not found"""
+        return self._get_url_by_fieldname("id", id_to_find)
+
     @use_connection
     def get_urls_checks_by_id(self, cur, url_id):
+        """Get all checks for given url by url_id.
+        Returns a list of check dicts"""
         query = """SELECT
                 id,
                 url_id,
@@ -75,6 +82,8 @@ class Repository:
 
     @use_connection
     def add_check(self, cur, **check):
+        """Saves new check for a given URL.
+        Returns check ID"""
         query = """INSERT INTO url_checks
         (url_id, status_code, h1, title, description, created_at)
         VALUES (%s, %s, %s,%s, %s, %s) RETURNING ID"""
@@ -92,6 +101,9 @@ class Repository:
 
     @use_connection
     def get_last_check_date_and_status(self, cur, url_id):
+        """Gets lates check date and code_status for a given url_id.
+        Return last_check_date and last_check_status_code tuple
+        """
         query = """SELECT DATE(MAX(created_at)), status_code
                 FROM url_checks
                 WHERE url_id = %s

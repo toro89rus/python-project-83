@@ -15,7 +15,7 @@ app.config["SECRET_KEY"] = SECRET_KEY
 
 @app.route("/")
 def index():
-    return render_template("main.html.j2")
+    return render_template("main.html.jinja")
 
 
 @app.route("/urls")
@@ -26,7 +26,7 @@ def index_urls():
         url["last_check"], url["status"] = repo.get_last_check_date_and_status(
             url["id"]
         )
-    return render_template("urls/urls.html.j2", urls=urls_list)
+    return render_template("urls/urls.html.jinja", urls=urls_list)
 
 
 @app.post("/urls")
@@ -41,7 +41,7 @@ def url_new():
             else "Слишком длинный URL"
         )
         flash(flash_message, "danger")
-        return render_template("main.html.j2", url=url), 422
+        return render_template("main.html.jinja", url=url), 422
     repo = Repository()
     existing_url = repo.get_url_by_name(normalized_url)
     if existing_url:
@@ -58,7 +58,7 @@ def show_url(id):
     repo = Repository()
     url = repo.get_url_by_id(id)
     url_checks = repo.get_urls_checks_by_id(id)
-    return render_template("/urls/show.html.j2", url=url, checks=url_checks)
+    return render_template("/urls/show.html.jinja", url=url, checks=url_checks)
 
 
 @app.post("/urls/<id>/checks")
@@ -76,4 +76,4 @@ def add_check(id):
     except (HTTPError, Timeout, ConnectionError):
         flash("Произошла ошибка при проверке", "danger")
     url_checks = repo.get_urls_checks_by_id(id)
-    return render_template("/urls/show.html.j2", url=url, checks=url_checks)
+    return render_template("/urls/show.html.jinja", url=url, checks=url_checks)

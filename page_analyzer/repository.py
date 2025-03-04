@@ -8,13 +8,12 @@ from page_analyzer.config import DATABASE_URL
 
 def use_connection(method):
     """Automatically manages connection to DB and cursor"""
+
     def wrapper(self, *args, **kwargs):
-        conn = psycopg2.connect(DATABASE_URL)
-        with conn.cursor(cursor_factory=DictCursor) as cur:
-            try:
+        with psycopg2.connect(DATABASE_URL) as conn:
+            with conn.cursor(cursor_factory=DictCursor) as cur:
                 return method(self, cur, *args, **kwargs)
-            finally:
-                conn.close()
+
     return wrapper
 
 

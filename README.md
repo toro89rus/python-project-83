@@ -1,10 +1,8 @@
 # Page Analyzer
 
-[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff)]
-
-[![Flask](https://img.shields.io/badge/Flask-000?logo=flask&logoColor=fff)]
-
-[![Postgres](https://img.shields.io/badge/Postgres-%23316192.svg?logo=postgresql&logoColor=white)]
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff)
+![Flask](https://img.shields.io/badge/Flask-000?logo=flask&logoColor=fff)
+![Postgres](https://img.shields.io/badge/Postgres-%23316192.svg?logo=postgresql&logoColor=white)
 
 ## Hexlet tests and linter status: [![Actions Status](https://github.com/toro89rus/python-project-83/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/toro89rus/python-project-83/actions)
 

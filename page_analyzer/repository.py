@@ -32,11 +32,11 @@ class Repository:
         """Saves new url to DB.
         Returns ID"""
         query = (
-            "INSERT INTO urls (name, created_at) VALUES (%s, %s) RETURNING ID"
+            "INSERT INTO urls (name, created_at) VALUES (%s, %s) RETURNING id"
         )
         values = (url, datetime.datetime.now())
         cur.execute(query, values)
-        id = cur.fetchone()[0]
+        id = cur.fetchone()["id"]
         return id
 
     @use_connection
@@ -49,7 +49,7 @@ class Repository:
             WHERE {field_name} = %s"""
         cur.execute(query, (value,))
         url = cur.fetchone()
-        return dict(url) if url else {}
+        return url if url else {}
 
     def get_url_by_name(self, name_to_find):
         """Gets URL from DB by name.
@@ -78,7 +78,7 @@ class Repository:
                 ORDER BY created_at DESC;
         """
         cur.execute(query, (url_id,))
-        return [dict(check) for check in cur]
+        return [check for check in cur]
 
     @use_connection
     def add_check(self, cur, **check):

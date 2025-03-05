@@ -104,10 +104,11 @@ class Repository:
         """Gets lates check date and code_status for a given url_id.
         Return last_check_date and last_check_status_code tuple
         """
-        query = """SELECT DATE(MAX(created_at)), status_code
+        query = """SELECT DATE(created_at), status_code
                 FROM url_checks
                 WHERE url_id = %s
-                GROUP BY status_code"""
+                ORDER BY created_at DESC
+                LIMIT 1"""
 
         cur.execute(query, (url_id,))
         last_check = cur.fetchone()

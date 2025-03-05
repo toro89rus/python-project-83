@@ -1,11 +1,13 @@
 # Page Analyzer
 
-## Hexlet tests, CodeClimate, linter statuses:[![Actions Status](https://github.com/toro89rus/python-project-83/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/toro89rus/python-project-83/actions) [![Actions Status](https://github.com/toro89rus/python-project-83/actions/workflows/lint-and-test.yml/badge.svg)](https://github.com/toro89rus/python-project-83/actions) [![Maintainability](https://api.codeclimate.com/v1/badges/e93115cb3814cdf62520/maintainability)](https://codeclimate.com/github/toro89rus/python-project-83/maintainability)
+## Hexlet tests, CodeClimate, linter statuses
+
+[![Actions Status](https://github.com/toro89rus/python-project-83/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/toro89rus/python-project-83/actions) [![Actions Status](https://github.com/toro89rus/python-project-83/actions/workflows/lint-and-test.yml/badge.svg)](https://github.com/toro89rus/python-project-83/actions) [![Maintainability](https://api.codeclimate.com/v1/badges/e93115cb3814cdf62520/maintainability)](https://codeclimate.com/github/toro89rus/python-project-83/maintainability)
 
 ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff)
 ![Flask](https://img.shields.io/badge/Flask-000?logo=flask&logoColor=fff)
 ![Postgres](https://img.shields.io/badge/Postgres-%23316192.svg?logo=postgresql&logoColor=white)
-[![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=fff)]
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=fff)
 
 ### Description
 
@@ -21,7 +23,7 @@ Page Analyzer is a web app build using Python and Flask, designed to evaluate SE
 
 ### Requirements
 
-- Python 3.12
+- `Python 3.12`
 - `uv`
 - `make`
 - `psql`
@@ -46,7 +48,7 @@ psql -d <database_name> -f database.sql
 
 #### Step 3: Configure the Application
 
-Update the database connection settings in config.py:
+Update the database connection settings in page_analyzer/config.py:
 
 ```bash
 DATABASE_URI = 'postgresql://username:password@localhost/page_analyzer'

@@ -11,6 +11,7 @@ from page_analyzer.url_validator import normalize_url, validate_url
 app = Flask(__name__)
 load_dotenv()
 app.config["SECRET_KEY"] = SECRET_KEY
+repo = Repository()
 
 
 @app.route("/")
@@ -20,7 +21,6 @@ def index():
 
 @app.route("/urls")
 def index_urls():
-    repo = Repository()
     urls_list = repo.get_all_urls()
     for url in urls_list:
         url["last_check"], url["status"] = repo.get_last_check_date_and_status(
@@ -42,7 +42,6 @@ def url_new():
         )
         flash(flash_message, "danger")
         return render_template("main.html.jinja", url=url), 422
-    repo = Repository()
     existing_url = repo.get_url_by_name(normalized_url)
     if existing_url:
         url_id = existing_url.get("id")
@@ -55,7 +54,6 @@ def url_new():
 
 @app.route("/urls/<id>")
 def show_url(id):
-    repo = Repository()
     url = repo.get_url_by_id(id)
     url_checks = repo.get_urls_checks_by_id(id)
     return render_template("/urls/show.html.jinja", url=url, checks=url_checks)
@@ -63,7 +61,6 @@ def show_url(id):
 
 @app.post("/urls/<id>/checks")
 def add_check(id):
-    repo = Repository()
     url = repo.get_url_by_id(id)
     try:
         r = requests.get(url["name"])

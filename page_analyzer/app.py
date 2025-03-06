@@ -21,6 +21,7 @@ def index():
 def index_urls():
     urls_list = repo.get_all_urls()
     for url in urls_list:
+        print(url)
         url["last_check"], url["status"] = repo.get_last_check_date_and_status(
             url["id"]
         )
@@ -35,7 +36,7 @@ def url_new():
     if errors:
         flash_message = (
             "Некорректный URL"
-            if errors.get("Incorrect URL")
+            if "Incorrect URL" in errors
             else "Слишком длинный URL"
         )
         flash(flash_message, "danger")

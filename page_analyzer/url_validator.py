@@ -11,9 +11,9 @@ def normalize_url(url):
 
 
 def validate_url(url):
-    errors = {}
+    errors = []
     if not validators.url(url):
-        errors["Incorrect URL"] = True
+        errors.append("Incorrect URL")
     if len(url) > URL_MAX_LEN:
-        errors["Exceeds max length"] = True
+        errors.append("Exceeds max length")
     return errors

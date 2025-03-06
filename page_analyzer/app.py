@@ -1,5 +1,4 @@
 import requests
-from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
 from requests.exceptions import ConnectionError, HTTPError, Timeout
 
@@ -9,7 +8,6 @@ from page_analyzer.repository import Repository
 from page_analyzer.url_validator import normalize_url, validate_url
 
 app = Flask(__name__)
-load_dotenv()
 app.config["SECRET_KEY"] = SECRET_KEY
 repo = Repository()
 

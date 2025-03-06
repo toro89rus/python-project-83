@@ -1,7 +1,8 @@
 import datetime
 
 import psycopg2
-from psycopg2.extras import DictCursor
+from psycopg2 import sql
+from psycopg2.extras import RealDictCursor
 
 from page_analyzer.config import DATABASE_URL
 
@@ -11,7 +12,7 @@ def use_connection(method):
 
     def wrapper(self, *args, **kwargs):
         with psycopg2.connect(DATABASE_URL) as conn:
-            with conn.cursor(cursor_factory=DictCursor) as cur:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 return method(self, cur, *args, **kwargs)
 
     return wrapper
@@ -25,7 +26,7 @@ class Repository:
         Returns a list of url dicts"""
         query = "SELECT * FROM urls ORDER BY id DESC"
         cur.execute(query)
-        return [dict(url) for url in cur]
+        return [url for url in cur]
 
     @use_connection
     def save_url(self, cur, url):
@@ -43,10 +44,9 @@ class Repository:
     def _get_url_by_fieldname(self, cur, field_name, value):
         """Internal method. Gets URL from DB by specified fieldname and value.
         Returns URL dict, empty dict if not found"""
-        query = f"""
-            SELECT id, name, DATE(created_at)
-            FROM urls
-            WHERE {field_name} = %s"""
+        query = sql.SQL(
+            "SELECT id, name, DATE(created_at) FROM urls WHERE {field} = %s"
+        ).format(field=sql.Identifier(field_name))
         cur.execute(query, (value,))
         url = cur.fetchone()
         return url if url else {}
@@ -113,6 +113,6 @@ class Repository:
         cur.execute(query, (url_id,))
         last_check = cur.fetchone()
         if last_check:
-            last_check_date, last_check_status_code = last_check
+            last_check_date, last_check_status_code = last_check.values()
             return last_check_date, last_check_status_code
         return "", ""

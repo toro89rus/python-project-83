@@ -29,7 +29,7 @@ def index_urls():
 
 
 @app.post("/urls")
-def url_new():
+def add_url():
     url = request.form.to_dict().get("url")
     normalized_url = normalize_url(url)
     errors = validate_url(normalized_url)

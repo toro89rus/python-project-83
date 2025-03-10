@@ -97,19 +97,15 @@ class Repository:
         return id
 
     @use_connection
-    def get_last_check_date_and_status(self, cur, url_id):
-        """Gets lates check date and code_status for a given url_id.
-        Return last_check_date and last_check_status_code tuple
+    def get_urls_with_last_check(sefl, cur):
+        query = """SELECT DISTINCT ON (urls.id)
+                urls.id AS id,
+                urls.name AS name,
+                DATE(url_checks.created_at) AS last_check_date,
+                url_checks.status_code AS last_check_status_code
+                FROM urls
+                LEFT JOIN url_checks ON urls.id = url_checks.url_id
+                ORDER BY urls.id DESC, url_checks.created_at DESC;
         """
-        query = """SELECT DATE(created_at), status_code
-                FROM url_checks
-                WHERE url_id = %s
-                ORDER BY created_at DESC
-                LIMIT 1"""
-
-        cur.execute(query, (url_id,))
-        last_check = cur.fetchone()
-        if last_check:
-            last_check_date, last_check_status_code = last_check.values()
-            return last_check_date, last_check_status_code
-        return "", ""
+        cur.execute(query)
+        return [url for url in cur]

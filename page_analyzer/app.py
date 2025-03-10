@@ -19,12 +19,7 @@ def index():
 
 @app.route("/urls")
 def index_urls():
-    urls_list = repo.get_all_urls()
-    for url in urls_list:
-        print(url)
-        url["last_check"], url["status"] = repo.get_last_check_date_and_status(
-            url["id"]
-        )
+    urls_list = repo.get_urls_with_last_check()
     return render_template("urls/urls.html.jinja", urls=urls_list)
 
 

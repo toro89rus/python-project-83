@@ -13,7 +13,7 @@ def normalize_url(url):
 def validate_url(url):
     errors = []
     if not validators.url(url):
-        errors.append("Incorrect URL")
+        errors.append("Некорректный URL")
     if len(url) > URL_MAX_LEN:
-        errors.append("Exceeds max length")
+        errors.append("Слишком длинный URL")
     return errors

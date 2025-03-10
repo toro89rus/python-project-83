@@ -34,10 +34,7 @@ def add_url():
     normalized_url = normalize_url(url)
     errors = validate_url(normalized_url)
     if errors:
-        if "Incorrect URL" in errors:
-            flash_message = "Некорректный URL"
-        elif "Exceeds max length" in errors:
-            flash_message = "Слишком длинный URL"
+        flash_message = errors[0]
         flash(flash_message, "danger")
         return render_template("main.html.jinja", url=url), 422
     existing_url = repo.get_url_by_name(normalized_url)

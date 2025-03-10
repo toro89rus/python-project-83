@@ -1,5 +1,3 @@
-import datetime
-
 import psycopg2
 from psycopg2 import sql
 from psycopg2.extras import RealDictCursor
@@ -33,9 +31,9 @@ class Repository:
         """Saves new url to DB.
         Returns ID"""
         query = (
-            "INSERT INTO urls (name, created_at) VALUES (%s, %s) RETURNING id"
+            "INSERT INTO urls (name) VALUES (%s) RETURNING id"
         )
-        values = (url, datetime.datetime.now())
+        values = (url,)
         cur.execute(query, values)
         id = cur.fetchone()["id"]
         return id
@@ -85,15 +83,14 @@ class Repository:
         """Saves new check for a given URL.
         Returns check ID"""
         query = """INSERT INTO url_checks
-        (url_id, status_code, h1, title, description, created_at)
-        VALUES (%s, %s, %s,%s, %s, %s) RETURNING ID"""
+        (url_id, status_code, h1, title, description)
+        VALUES (%s, %s, %s,%s, %s) RETURNING ID"""
         values = (
             check["url_id"],
             check["status_code"],
             check["h1"],
             check["title"],
-            check["content"],
-            datetime.datetime.now(),
+            check["content"]
         )
         cur.execute(query, values)
         id = cur.fetchone()

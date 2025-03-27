@@ -49,11 +49,13 @@ class Repository:
         url = cur.fetchone()
         return url if url else {}
 
+    @use_connection
     def get_url_by_name(self, name_to_find):
         """Gets URL from DB by name.
         Returns URL dict, empty dict if name not found"""
         return self._get_url_by_fieldname("name", name_to_find)
 
+    @use_connection
     def get_url_by_id(self, id_to_find):
         """Gets URL from DB by id.
         Returns URL dict, empty dict if id not found"""
